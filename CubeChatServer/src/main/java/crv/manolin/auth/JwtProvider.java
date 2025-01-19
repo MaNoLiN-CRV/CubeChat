@@ -1,14 +1,14 @@
 package crv.manolin.auth;
 
 public class JwtProvider {
-    private String secretKey;
-    private long validityInMilliseconds;
+    private static String secretKey;
+    private static long validityInMilliseconds;
 
-    public String generateToken(String username) {
+    protected static String generateToken(String username) {
         return "";
     }
 
-    public boolean validateToken(String token) {
+    protected static boolean validateToken(String token) {
         return false;
     }
 }
