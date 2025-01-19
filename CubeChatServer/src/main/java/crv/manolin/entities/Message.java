@@ -4,18 +4,18 @@ import java.time.LocalDateTime;
 
 
 public class Message {
-    private String id;
+    private String roomId;
     private String content;
     private User sender;
     private LocalDateTime timestamp;
     private MessageType type;
 
-    public String getId() {
-        return id;
+    public String getRoomId() {
+        return roomId;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setRoomId(String roomId) {
+        this.roomId = roomId;
     }
 
     public String getContent() {

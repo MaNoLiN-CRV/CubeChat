@@ -19,12 +19,12 @@ public class ChatEventHandler {
         );
     }
 
-    public void subscribe(ChatEventType type, EventHandlerCallback handler) {
+    public void addHandler(ChatEventType type, EventHandlerCallback handler) {
         handlers.computeIfAbsent(type, k -> ConcurrentHashMap.newKeySet())
                 .add(handler);
     }
 
-    public void publish(ChatEvent event) {
+    public void processEvent(ChatEvent event) {
         eventExecutor.submit(() -> {
             Set<EventHandlerCallback> eventHandlers = handlers.get(event.getType());
             if (eventHandlers != null) {
