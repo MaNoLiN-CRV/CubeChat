@@ -1,6 +1,7 @@
-package crv.manolin.sessions;
+package crv.manolin.managers;
 
 import crv.manolin.entities.Message;
+import crv.manolin.entities.SocketSession;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;

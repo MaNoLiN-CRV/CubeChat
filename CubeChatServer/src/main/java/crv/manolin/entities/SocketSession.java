@@ -1,7 +1,4 @@
-package crv.manolin.sessions;
-
-import crv.manolin.entities.Message;
-import crv.manolin.entities.User;
+package crv.manolin.entities;
 
 import java.net.Socket;
 import java.util.HashSet;
