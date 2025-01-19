@@ -54,6 +54,11 @@ public class ChatRoom {
     public boolean removeFromBuffer(Message message) {
         return messageBuffer.remove(message);
     }
+
+    public Message getNextMessage() {
+        return messageBuffer.poll();
+    }
+
     public void addParticipant(User user) {
         participants.add(user);
     }
