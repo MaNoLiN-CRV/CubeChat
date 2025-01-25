@@ -1,6 +1,7 @@
 package crv.manolin.processor;
 
 import crv.manolin.entities.Message;
+import crv.manolin.events.entities.MessageEvent;
 import crv.manolin.managers.RoomManager;
 
 import java.util.concurrent.ExecutorService;
@@ -14,19 +15,17 @@ public class MessageProcessor {
         this.roomManager = roomManager;
     }
 
-    public void processMessage(Message message, String roomId) {
-        messageExecutor.submit(() -> {
-            validateMessage(message);
-            roomManager.processMessage(roomId, message);
-            persistMessage(message, roomId);
-        });
+    public void processMessage(MessageEvent messageEvent) {
+        validateMessage(messageEvent);
+        roomManager.processMessage(messageEvent);
+        persistMessage(messageEvent);
     }
 
-    private void persistMessage(Message message, String roomId) {
+    private void persistMessage(MessageEvent message) {
         // TODO : Save the message into the database
     }
 
-    private void validateMessage(Message message) {
+    private void validateMessage(MessageEvent message) {
         // TODO : Validate the message
     }
 }

@@ -30,7 +30,7 @@ public class ChatEventHandler {
             if (eventHandlers != null) {
                 eventHandlers.forEach(handler -> {
                     try {
-                        handler.handleEvent(event);
+                        eventExecutor.submit(() -> handler.handleEvent(event));
                     } catch (Exception e) {
                         // TODO : CUSTOM EXCEPTION
                     }

@@ -1,25 +1,38 @@
 package crv.manolin.managers;
 
+import crv.manolin.entities.ChatRoom;
 import crv.manolin.entities.Message;
 import crv.manolin.entities.SocketSession;
+import crv.manolin.events.entities.MessageEvent;
 
+import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class SessionManager {
-    private ConcurrentHashMap<String, SocketSession> sessions = new ConcurrentHashMap<>();
-    private ExecutorService executorService = Executors.newCachedThreadPool();
+    private ConcurrentHashMap<ChatRoom, ArrayList<SocketSession>> sessions = new ConcurrentHashMap<>();
 
-    public void addSession(SocketSession session) {
-        sessions.put(session.getSessionId(), session);
+    public void addSession(SocketSession session , ChatRoom room) {
+        if ( sessions.containsKey(room)) {
+            sessions.get(room).add(session);
+        }
+        else {
+            sessions.put(room, new ArrayList<>());
+            sessions.get(room).add(session);
+        }
     }
 
-    public void removeSession(String sessionId) {
-        sessions.remove(sessionId);
+    private ChatRoom getChatRoom(String room) {
+        return null; // TODO: Implement room retrieval logic
     }
 
-    public void broadcastToRoom(String roomId, Message message) {
-        // TODO : broadcast to room
+    public void removeSession(SocketSession session , ChatRoom room) {
+        sessions.get(room).remove(session);
+    }
+
+    public void broadcastToRoom(MessageEvent event) {
+        String roomId = event.getRoomId();
+
     }
 }

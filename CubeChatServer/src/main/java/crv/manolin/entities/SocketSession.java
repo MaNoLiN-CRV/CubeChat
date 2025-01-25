@@ -9,7 +9,7 @@ public class SocketSession {
     private String sessionId;
     private User user;
     private Socket connection;
-    private Set<String> subscribedRooms;
+    private Set<ChatRoom> subscribedRooms;
     private AtomicLong lastHeartbeat;
 
     public SocketSession(String sessionId, User user, Socket connection) {
@@ -52,13 +52,13 @@ public class SocketSession {
         this.connection = connection;
     }
 
-    public Set<String> getSubscribedRooms() {
+    public Set<ChatRoom> getSubscribedRooms() {
         return subscribedRooms;
     }
-
-    public void setSubscribedRooms(Set<String> subscribedRooms) {
+    public void setSubscribedRooms(Set<ChatRoom> subscribedRooms) {
         this.subscribedRooms = subscribedRooms;
     }
+
 
     public AtomicLong getLastHeartbeat() {
         return lastHeartbeat;
@@ -68,11 +68,11 @@ public class SocketSession {
         this.lastHeartbeat = lastHeartbeat;
     }
 
-    public void suscribeRoom(String room) {
+    public void suscribeRoom(ChatRoom room) {
         subscribedRooms.add(room);
     }
 
-    public void unsuscribeRoom(String room) {
+    public void unsuscribeRoom(ChatRoom room) {
         subscribedRooms.remove(room);
     }
 }

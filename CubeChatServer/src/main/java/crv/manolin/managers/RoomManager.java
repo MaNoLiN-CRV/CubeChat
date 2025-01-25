@@ -3,6 +3,7 @@ package crv.manolin.managers;
 import crv.manolin.entities.ChatRoom;
 import crv.manolin.entities.Message;
 import crv.manolin.entities.User;
+import crv.manolin.events.entities.MessageEvent;
 
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -37,9 +38,9 @@ public class RoomManager {
         // TODO: Notify other users
     }
 
-    public void processMessage(String roomId, Message message) {
-        ChatRoom room = rooms.get(roomId);
-        room.getMessageBuffer().offer(message);
-        sessionManager.broadcastToRoom(roomId, message);
+    public void processMessage(MessageEvent message) {
+        ChatRoom room = rooms.get(message.getRoomId());
+        room.getMessageBuffer().offer(message.getMessage());
+        sessionManager.broadcastToRoom(room , message.getMessage());
     }
 }
