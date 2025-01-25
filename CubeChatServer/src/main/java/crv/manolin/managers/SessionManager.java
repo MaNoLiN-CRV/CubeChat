@@ -6,6 +6,7 @@ import crv.manolin.entities.SocketSession;
 import crv.manolin.events.entities.MessageEvent;
 
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -32,7 +33,13 @@ public class SessionManager {
     }
 
     public void broadcastToRoom(MessageEvent event) {
-        String roomId = event.getRoomId();
+        for (ChatRoom chatRoom : sessions.keySet()) {
+            if (Objects.equals(chatRoom.getId(), event.getRoomId())){
+                for (SocketSession socketSession : sessions.get(chatRoom)) {
+                    socketSession.sendMessage(event.getMessage());
+                }
+            }
+        }
 
     }
 }
