@@ -2,6 +2,7 @@ package crv.manolin.sockets;
 
 import crv.manolin.entities.Message;
 import crv.manolin.events.ChatEventHandler;
+import crv.manolin.events.entities.ConnectionFinishedEvent;
 import crv.manolin.events.entities.ConnectionLostEvent;
 import crv.manolin.events.entities.MessageEvent;
 import java.io.IOException;
@@ -36,6 +37,10 @@ public class SocketHandler implements Runnable {
                             message.getSender().getId()
                     );
                     eventHandler.processEvent(event);
+                }
+                else if (received instanceof ConnectionFinishedEvent){
+                    running = false;
+                    eventHandler.processEvent((ConnectionFinishedEvent) received);
                 }
             }
         } catch (IOException | ClassNotFoundException e) {
