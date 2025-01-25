@@ -8,11 +8,23 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class RoomManager {
 
+    private static RoomManager instance;
     private final ConcurrentHashMap<String, ChatRoom> rooms = new ConcurrentHashMap<>();
     private final SessionManager sessionManager;
 
-    public RoomManager(SessionManager sessionManager) {
+    private RoomManager(SessionManager sessionManager) {
         this.sessionManager = sessionManager;
+    }
+
+    public static RoomManager getInstance(SessionManager sessionManager) {
+        if (instance == null) {
+            synchronized (RoomManager.class) {
+                if (instance == null) {
+                    instance = new RoomManager(sessionManager);
+                }
+            }
+        }
+        return instance;
     }
 
     public void createRoom(ChatRoom room) {
