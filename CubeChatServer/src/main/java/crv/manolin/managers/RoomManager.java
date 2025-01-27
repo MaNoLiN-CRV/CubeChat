@@ -2,9 +2,11 @@ package crv.manolin.managers;
 
 import crv.manolin.entities.ChatRoom;
 import crv.manolin.entities.Message;
+import crv.manolin.entities.SocketSession;
 import crv.manolin.entities.User;
 import crv.manolin.events.entities.MessageEvent;
 
+import java.net.Socket;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class RoomManager {
@@ -32,15 +34,16 @@ public class RoomManager {
         rooms.put(room.getId(), room);
     }
 
-    public void addUserToRoom(String roomId, User user) {
+    public void addUserToRoom(String roomId, User user , Socket socket) {
         ChatRoom room = rooms.get(roomId);
         room.getParticipants().add(user);
+        sessionManager.addSession(new SocketSession(user.getId(), user, socket) , room);
         // TODO: Notify other users
     }
 
     public void processMessage(MessageEvent message) {
         ChatRoom room = rooms.get(message.getRoomId());
         room.getMessageBuffer().offer(message.getMessage());
-        sessionManager.broadcastToRoom(room , message.getMessage());
+        sessionManager.broadcastToRoom(message);
     }
 }

@@ -1,8 +1,10 @@
 package crv.manolin.sockets;
 
 import crv.manolin.debug.DebugCenter;
+import crv.manolin.entities.User;
 import crv.manolin.events.ChatEventHandler;
 import crv.manolin.events.entities.ChatEventType;
+import crv.manolin.events.entities.JoinEvent;
 import crv.manolin.managers.RoomManager;
 import crv.manolin.managers.SessionManager;
 import crv.manolin.processor.MessageProcessor;
@@ -66,7 +68,12 @@ public class ServerConnectionHandler {
     }
     private void eventsSetup() {
         this.eventHandler.addHandler(ChatEventType.MESSAGE_RECEIVED, event -> this.messageProcessor.processMessage(event));
-
+        this.eventHandler.addHandler(ChatEventType.USER_JOINED , event -> {
+            if (event instanceof JoinEvent joinEvent){
+            roomManager.addUserToRoom(joinEvent.getRoomId(), new User(joinEvent.getUsername()), joinEvent.getSocket());
+            //TODO: Validate connection and send ConnectionSuccessEvent
+            }
+        });
     }
 
     private void serverSetup() {
