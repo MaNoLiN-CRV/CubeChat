@@ -1,8 +1,7 @@
 package crv.manolin.processor;
 
-import crv.manolin.entities.Message;
 import crv.manolin.events.entities.ChatEvent;
-import crv.manolin.events.entities.MessageEvent;
+import crv.manolin.events.entities.events.MessageEvent;
 import crv.manolin.managers.RoomManager;
 
 import java.util.concurrent.ExecutorService;

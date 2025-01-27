@@ -1,6 +1,8 @@
-package crv.manolin.events.entities;
+package crv.manolin.events.entities.events;
 
 import crv.manolin.entities.Message;
+import crv.manolin.events.entities.ChatEvent;
+import crv.manolin.events.entities.ChatEventType;
 
 public class MessageEvent extends ChatEvent {
     private final Message message;

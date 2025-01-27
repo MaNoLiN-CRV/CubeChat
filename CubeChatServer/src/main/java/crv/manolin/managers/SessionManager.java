@@ -1,15 +1,12 @@
 package crv.manolin.managers;
 
 import crv.manolin.entities.ChatRoom;
-import crv.manolin.entities.Message;
 import crv.manolin.entities.SocketSession;
-import crv.manolin.events.entities.MessageEvent;
+import crv.manolin.events.entities.events.MessageEvent;
 
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class SessionManager {
     private ConcurrentHashMap<ChatRoom, ArrayList<SocketSession>> sessions = new ConcurrentHashMap<>();

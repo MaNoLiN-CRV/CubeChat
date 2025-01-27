@@ -1,6 +1,8 @@
-package crv.manolin.events.entities;
+package crv.manolin.events.entities.events;
 
-import java.beans.EventHandler;
+import crv.manolin.events.entities.ChatEvent;
+import crv.manolin.events.entities.ChatEventType;
+
 import java.net.Socket;
 
 public class ConnectionLostEvent extends ChatEvent {

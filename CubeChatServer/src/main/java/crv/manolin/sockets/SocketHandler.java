@@ -2,9 +2,9 @@ package crv.manolin.sockets;
 
 import crv.manolin.entities.Message;
 import crv.manolin.events.ChatEventHandler;
-import crv.manolin.events.entities.ConnectionFinishedEvent;
-import crv.manolin.events.entities.ConnectionLostEvent;
-import crv.manolin.events.entities.MessageEvent;
+import crv.manolin.events.entities.events.ConnectionFinishedEvent;
+import crv.manolin.events.entities.events.ConnectionLostEvent;
+import crv.manolin.events.entities.events.MessageEvent;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;

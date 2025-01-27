@@ -1,8 +1,11 @@
-package crv.manolin.events.entities;
+package crv.manolin.events.entities.events;
+
+import crv.manolin.events.entities.ChatEvent;
+import crv.manolin.events.entities.ChatEventType;
 
 import java.net.Socket;
 
-public class JoinEvent extends ChatEvent{
+public class JoinEvent extends ChatEvent {
     private String roomId;
     private String username;
     private String password;

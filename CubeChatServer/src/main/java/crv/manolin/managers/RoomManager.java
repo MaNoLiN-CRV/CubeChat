@@ -1,10 +1,9 @@
 package crv.manolin.managers;
 
 import crv.manolin.entities.ChatRoom;
-import crv.manolin.entities.Message;
 import crv.manolin.entities.SocketSession;
 import crv.manolin.entities.User;
-import crv.manolin.events.entities.MessageEvent;
+import crv.manolin.events.entities.events.MessageEvent;
 
 import java.net.Socket;
 import java.util.concurrent.ConcurrentHashMap;

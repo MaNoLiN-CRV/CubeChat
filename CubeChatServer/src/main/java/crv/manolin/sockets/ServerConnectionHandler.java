@@ -4,7 +4,7 @@ import crv.manolin.debug.DebugCenter;
 import crv.manolin.entities.User;
 import crv.manolin.events.ChatEventHandler;
 import crv.manolin.events.entities.ChatEventType;
-import crv.manolin.events.entities.JoinEvent;
+import crv.manolin.events.entities.events.JoinEvent;
 import crv.manolin.managers.RoomManager;
 import crv.manolin.managers.SessionManager;
 import crv.manolin.processor.MessageProcessor;
@@ -51,6 +51,7 @@ public class ServerConnectionHandler {
             serverSocket = new ServerSocket(PORT);
             serverSocket.setReuseAddress(true); 
             serverSetup();
+            eventsSetup();
             DebugCenter.log("Starting server");
 
             isRunning = true;
