@@ -1,10 +1,11 @@
 package crv.manolin.sockets;
 
+import crv.manolin.debug.DebugCenter;
 import crv.manolin.entities.Message;
 import crv.manolin.events.ChatEventHandler;
-import crv.manolin.events.entities.events.ConnectionFinishedEvent;
-import crv.manolin.events.entities.events.ConnectionLostEvent;
-import crv.manolin.events.entities.events.MessageEvent;
+import crv.manolin.events.entities.ChatEvent;
+import crv.manolin.events.entities.events.*;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -30,17 +31,18 @@ public class SocketHandler extends Thread {
         try {
             while (running) {
                 Object received = input.readObject();
-                if (received instanceof Message message) {
-                    MessageEvent event = new MessageEvent(
-                            message,
-                            message.getRoomId(),
-                            message.getSender().getId()
-                    );
-                    eventHandler.processEvent(event);
+                if (received instanceof MessageEvent message) {
+                    eventHandler.processEvent(message); // Message
                 }
                 else if (received instanceof ConnectionFinishedEvent){
                     running = false;
-                    eventHandler.processEvent((ConnectionFinishedEvent) received);
+                    eventHandler.processEvent((ConnectionFinishedEvent) received); //Connection finished
+                }
+                else if (received instanceof JoinEvent joinEvent) {
+                    eventHandler.processEvent(joinEvent); // Join event
+                }
+                else if (received instanceof NewConnectionEvent newConnectionEvent) {
+                    eventHandler.processEvent(newConnectionEvent); // New connection event
                 }
             }
         } catch (IOException | ClassNotFoundException e) {
@@ -48,6 +50,19 @@ public class SocketHandler extends Thread {
         } finally {
             cleanup();
         }
+    }
+
+    public void sendEvent(ChatEvent event) {
+        try {
+            output.writeObject(event);
+            output.flush();
+        } catch (IOException e) {
+            DebugCenter.error(e.getMessage());
+        }
+    }
+    public void close() {
+        running = false;
+        cleanup();
     }
 
     private void cleanup() {

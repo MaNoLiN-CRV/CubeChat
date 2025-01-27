@@ -6,6 +6,7 @@ import crv.manolin.entities.User;
 import crv.manolin.events.entities.events.MessageEvent;
 
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class RoomManager {
@@ -31,6 +32,10 @@ public class RoomManager {
 
     public void createRoom(ChatRoom room) {
         rooms.put(room.getId(), room);
+    }
+
+    public ArrayList<String> getRoomsIds() {
+        return new ArrayList<>(rooms.keySet());
     }
 
     public void addUserToRoom(String roomId, User user , Socket socket) {

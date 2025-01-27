@@ -6,15 +6,13 @@ import crv.manolin.events.entities.ChatEventType;
 import java.net.Socket;
 
 public class JoinEvent extends ChatEvent {
-    private String roomId;
-    private String username;
-    private String password;
-    private Socket socket;
+    private final String roomId;
+    private final String username;
+    private final Socket socket;
     public JoinEvent(String roomId, String username, String password, Socket socket) {
         super(ChatEventType.USER_JOINED);
         this.roomId = roomId;
         this.username = username;
-        this.password = password;
         this.socket = socket;
     }
     public Socket getSocket() {

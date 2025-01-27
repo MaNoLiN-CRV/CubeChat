@@ -4,12 +4,15 @@ import crv.manolin.debug.DebugCenter;
 import crv.manolin.entities.User;
 import crv.manolin.events.ChatEventHandler;
 import crv.manolin.events.entities.ChatEventType;
+import crv.manolin.events.entities.events.ConnectionSuccessEvent;
 import crv.manolin.events.entities.events.JoinEvent;
+import crv.manolin.events.entities.events.NewConnectionEvent;
 import crv.manolin.managers.RoomManager;
 import crv.manolin.managers.SessionManager;
 import crv.manolin.processor.MessageProcessor;
 
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
@@ -97,13 +100,26 @@ public class MultiPortServer {
     }
 
     private void eventsSetup() {
-        this.eventHandler.addHandler(ChatEventType.MESSAGE_RECEIVED, event -> this.messageProcessor.processMessage(event));
+
+        this.eventHandler.addHandler(ChatEventType.MESSAGE_RECEIVED,
+                event -> this.messageProcessor.processMessage(event));
+
         this.eventHandler.addHandler(ChatEventType.USER_JOINED, event -> {
             if (event instanceof JoinEvent joinEvent) {
                 roomManager.addUserToRoom(joinEvent.getRoomId(), new User(joinEvent.getUsername()), joinEvent.getSocket());
-                //TODO: Validate connection and send ConnectionSuccessEvent
+
             }
         });
+
+        this.eventHandler.addHandler(ChatEventType.NEW_CONNECTION , event -> {
+            if (event instanceof NewConnectionEvent newConnectionEvent) {
+                //TODO: Validate connection and send ConnectionSuccessEvent (auth service)
+                SocketHandler handler = newConnectionEvent.getSocketHandler();
+                handler.sendEvent(new ConnectionSuccessEvent(CHAT_PORT, roomManager.getRoomsIds(),""));
+                handler.close(); // Close connection after successful login
+            }
+        });
+
     }
 
     private void serverSetup() {
@@ -123,13 +139,13 @@ public class MultiPortServer {
     }
 
     /**
-     * Handles a new connection on the connection port
+     * Handles a new connection on the connection port (asynchronous)
      */
     private void handleNewConnection(Socket clientSocket) {
         try {
-            DebugCenter.log("New connection from: " + clientSocket.getInetAddress());
-
-            //TODO: Validate connection and send ConnectionSuccessEvent
+            DebugCenter.log("NEW CONNECTION from: " + clientSocket.getInetAddress());
+            SocketHandler socketHandler = new SocketHandler(clientSocket, this.eventHandler);
+            socketHandler.start(); // Starts socket handler
 
         } catch (Exception e) {
             DebugCenter.error("New connection handling error: " + e.getMessage());

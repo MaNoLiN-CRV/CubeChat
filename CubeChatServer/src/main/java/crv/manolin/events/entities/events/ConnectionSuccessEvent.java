@@ -7,16 +7,18 @@ import java.util.ArrayList;
 
 public class ConnectionSuccessEvent extends ChatEvent {
     private final int port;
-    private final ArrayList<String> messages;
-    public ConnectionSuccessEvent( int port, ArrayList<String> messages) {
+    private final String jwt;
+    private final ArrayList<String> roomsIds;
+    public ConnectionSuccessEvent(int port, ArrayList<String> roomsIds, String jwt) {
         super(ChatEventType.CONNECTION_SUCCESS);
         this.port = port;
-        this.messages = messages;
+        this.roomsIds = roomsIds;
+        this.jwt = jwt;
     }
     public int getPort() {
         return port;
     }
-    public ArrayList<String> getMessages() {
-        return messages;
+    public ArrayList<String> getRoomsIds() {
+        return roomsIds;
     }
 }
