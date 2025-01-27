@@ -1,6 +1,7 @@
 package crv.manolin.processor;
 
 import crv.manolin.entities.Message;
+import crv.manolin.events.entities.ChatEvent;
 import crv.manolin.events.entities.MessageEvent;
 import crv.manolin.managers.RoomManager;
 
@@ -15,10 +16,13 @@ public class MessageProcessor {
         this.roomManager = roomManager;
     }
 
-    public void processMessage(MessageEvent messageEvent) {
-        validateMessage(messageEvent);
-        roomManager.processMessage(messageEvent);
-        persistMessage(messageEvent);
+    public void processMessage(ChatEvent messageEvent) {
+        if (messageEvent instanceof MessageEvent messageEventCasted) {
+            validateMessage(messageEventCasted);
+            roomManager.processMessage(messageEventCasted);
+            persistMessage(messageEventCasted);
+        }
+
     }
 
     private void persistMessage(MessageEvent message) {

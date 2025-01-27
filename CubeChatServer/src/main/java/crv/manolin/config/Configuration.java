@@ -1,10 +1,11 @@
 package crv.manolin.config;
 
 public class Configuration {
-    private String databaseUrl;
-    private String databaseUsername;
-    private String databasePassword;
+    private String databaseUrl = "";
+    private String databaseUsername = "";
+    private String databasePassword = "";
     private boolean debug = true;
+    private int jwtExpiration = calculateJwtExpiration(60);
     private static Configuration configuration;
 
 
@@ -17,6 +18,14 @@ public class Configuration {
             }
         }
         return configuration;
+    }
+
+    private int calculateJwtExpiration(int minutes ) {
+        return minutes * 60 * 1000;
+    }
+
+    public int getJwtExpiration() {
+        return jwtExpiration;
     }
 
     public String getDatabaseUrl() {

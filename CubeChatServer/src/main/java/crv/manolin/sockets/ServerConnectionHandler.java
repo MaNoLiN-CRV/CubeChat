@@ -2,6 +2,7 @@ package crv.manolin.sockets;
 
 import crv.manolin.debug.DebugCenter;
 import crv.manolin.events.ChatEventHandler;
+import crv.manolin.events.entities.ChatEventType;
 import crv.manolin.managers.RoomManager;
 import crv.manolin.managers.SessionManager;
 import crv.manolin.processor.MessageProcessor;
@@ -13,7 +14,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-public class SocketsConnectionHandler {
+public class ServerConnectionHandler {
     private static final int PORT = 8888;
     private static final int THREAD_POOL_SIZE = Runtime.getRuntime().availableProcessors() * 2;
     private static final int SOCKET_TIMEOUT = 30000; // 30 seconds timeout
@@ -36,7 +37,7 @@ public class SocketsConnectionHandler {
 
 
 
-    public SocketsConnectionHandler() {
+    public ServerConnectionHandler() {
         connectionThreadPool = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
     }
 
@@ -47,7 +48,7 @@ public class SocketsConnectionHandler {
         try {
             serverSocket = new ServerSocket(PORT);
             serverSocket.setReuseAddress(true); 
-            serverSetup(); 
+            serverSetup();
             DebugCenter.log("Starting server");
 
             isRunning = true;
@@ -63,7 +64,10 @@ public class SocketsConnectionHandler {
             stopServer();
         }
     }
+    private void eventsSetup() {
+        this.eventHandler.addHandler(ChatEventType.MESSAGE_RECEIVED, event -> this.messageProcessor.processMessage(event));
 
+    }
 
     private void serverSetup() {
         eventHandler = new ChatEventHandler();
@@ -91,7 +95,7 @@ public class SocketsConnectionHandler {
     private void handleClientConnection(Socket clientSocket) {
         try {
             DebugCenter.log("Client connected: " + clientSocket.getInetAddress());
-            SocketHandler socketHandler = new SocketHandler(clientSocket, new ChatEventHandler());
+            SocketHandler socketHandler = new SocketHandler(clientSocket, this.eventHandler);
         } catch (Exception e) {
             DebugCenter.error("Client connection error: " + e.getMessage());
         }
