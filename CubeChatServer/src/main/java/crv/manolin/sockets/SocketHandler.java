@@ -10,7 +10,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
-public class SocketHandler implements Runnable {
+public class SocketHandler extends Thread {
     private final Socket clientSocket;
     private final ChatEventHandler eventHandler;
     private final ObjectInputStream input;
