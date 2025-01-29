@@ -113,7 +113,7 @@ public class MultiPortServer {
 
         this.eventHandler.addHandler(ChatEventType.NEW_CONNECTION , event -> {
             if (event instanceof NewConnectionEvent newConnectionEvent) {
-                //TODO: Validate connection and send ConnectionSuccessEvent (auth service)
+                //TODO: Validate connection (auth service)
                 SocketHandler handler = newConnectionEvent.getSocketHandler();
                 handler.sendEvent(new ConnectionSuccessEvent(CHAT_PORT, roomManager.getRoomsIds(),""));
                 handler.close(); // Close connection after successful login

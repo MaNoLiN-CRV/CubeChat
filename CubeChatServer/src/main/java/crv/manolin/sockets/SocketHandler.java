@@ -39,6 +39,7 @@ public class SocketHandler extends Thread {
                     eventHandler.processEvent((ConnectionFinishedEvent) received); //Connection finished
                 }
                 else if (received instanceof JoinEvent joinEvent) {
+                    joinEvent.setSocket(clientSocket);
                     eventHandler.processEvent(joinEvent); // Join event
                 }
                 else if (received instanceof NewConnectionEvent newConnectionEvent) {
