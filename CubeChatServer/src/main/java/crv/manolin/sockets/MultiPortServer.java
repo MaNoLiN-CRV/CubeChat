@@ -4,9 +4,7 @@ import crv.manolin.debug.DebugCenter;
 import crv.manolin.entities.User;
 import crv.manolin.events.ChatEventHandler;
 import crv.manolin.events.entities.ChatEventType;
-import crv.manolin.events.entities.events.ConnectionSuccessEvent;
-import crv.manolin.events.entities.events.JoinEvent;
-import crv.manolin.events.entities.events.NewConnectionEvent;
+import crv.manolin.events.entities.events.*;
 import crv.manolin.managers.RoomManager;
 import crv.manolin.managers.SessionManager;
 import crv.manolin.processor.MessageProcessor;
@@ -31,20 +29,15 @@ public class MultiPortServer {
     private ServerSocket chatSocket;
     private volatile boolean isRunning = false;
 
-    /////////// SETUP VARIABLES //////////
     private ChatEventHandler eventHandler;
     private MessageProcessor messageProcessor;
     private RoomManager roomManager;
     private SessionManager sessionManager;
-    //////////////////////////////////////
 
     public MultiPortServer() {
         connectionThreadPool = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
     }
 
-    /**
-     * Starts the socket server with efficient configuration and connection handling
-     */
     public void startServer() {
         try {
             serverSetup();
@@ -100,26 +93,40 @@ public class MultiPortServer {
     }
 
     private void eventsSetup() {
-
         this.eventHandler.addHandler(ChatEventType.MESSAGE_RECEIVED,
                 event -> this.messageProcessor.processMessage(event));
 
         this.eventHandler.addHandler(ChatEventType.USER_JOINED, event -> {
             if (event instanceof JoinEvent joinEvent) {
-                roomManager.addUserToRoom(joinEvent.getRoomId(), new User(joinEvent.getUsername()), joinEvent.getSocket());
-
+                roomManager.addUserToRoom(
+                        joinEvent.getRoomId(),
+                        new User(joinEvent.getUsername()),
+                        joinEvent.getSocket()
+                );
             }
         });
 
-        this.eventHandler.addHandler(ChatEventType.NEW_CONNECTION , event -> {
+        this.eventHandler.addHandler(ChatEventType.NEW_CONNECTION, event -> {
             if (event instanceof NewConnectionEvent newConnectionEvent) {
                 //TODO: Validate connection (auth service)
-                SocketHandler handler = newConnectionEvent.getSocketHandler();
-                handler.sendEvent(new ConnectionSuccessEvent(CHAT_PORT, roomManager.getRoomsIds(),""));
-                handler.close(); // Close connection after successful login
+                try {
+                    // Enviamos directamente el evento de conexión exitosa
+                    ObjectOutputStream output = new ObjectOutputStream(
+                            newConnectionEvent.getSocket().getOutputStream()
+                    );
+                    output.writeObject(new ConnectionSuccessEvent(
+                            CHAT_PORT,
+                            roomManager.getRoomsIds(),
+                            ""
+                    ));
+                    output.flush();
+
+                    newConnectionEvent.getSocket().close();
+                } catch (IOException e) {
+                    DebugCenter.error("Error sending connection success: " + e.getMessage());
+                }
             }
         });
-
     }
 
     private void serverSetup() {
@@ -129,32 +136,22 @@ public class MultiPortServer {
         messageProcessor = new MessageProcessor(roomManager);
     }
 
-    /**
-     * Configures individual socket with performance and timeout settings
-     */
     private void configureSocketParameters(Socket socket) throws IOException {
         socket.setTcpNoDelay(true);
         socket.setSoTimeout(SOCKET_TIMEOUT);
         socket.setKeepAlive(true);
     }
 
-    /**
-     * Handles a new connection on the connection port (asynchronous)
-     */
     private void handleNewConnection(Socket clientSocket) {
         try {
             DebugCenter.log("NEW CONNECTION from: " + clientSocket.getInetAddress());
             SocketHandler socketHandler = new SocketHandler(clientSocket, this.eventHandler);
-            socketHandler.start(); // Starts socket handler
-
+            socketHandler.start();
         } catch (Exception e) {
             DebugCenter.error("New connection handling error: " + e.getMessage());
         }
     }
 
-    /**
-     * Handles a new connection on the chat port
-     */
     private void handleChatConnection(Socket clientSocket) {
         try {
             DebugCenter.log("New chat connection from: " + clientSocket.getInetAddress());
@@ -165,9 +162,6 @@ public class MultiPortServer {
         }
     }
 
-    /**
-     * Gracefully stops the server and releases resources
-     */
     public void stopServer() {
         isRunning = false;
 

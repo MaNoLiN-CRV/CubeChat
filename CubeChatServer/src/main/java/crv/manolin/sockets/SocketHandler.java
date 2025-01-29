@@ -1,7 +1,6 @@
 package crv.manolin.sockets;
 
 import crv.manolin.debug.DebugCenter;
-import crv.manolin.entities.Message;
 import crv.manolin.events.ChatEventHandler;
 import crv.manolin.events.entities.ChatEvent;
 import crv.manolin.events.entities.events.*;
@@ -18,7 +17,7 @@ public class SocketHandler extends Thread {
     private final ObjectOutputStream output;
     private boolean running;
 
-    public SocketHandler(Socket socket, ChatEventHandler handler ) throws IOException {
+    public SocketHandler(Socket socket, ChatEventHandler handler) throws IOException {
         this.clientSocket = socket;
         this.eventHandler = handler;
         this.output = new ObjectOutputStream(socket.getOutputStream());
@@ -31,19 +30,15 @@ public class SocketHandler extends Thread {
         try {
             while (running) {
                 Object received = input.readObject();
-                if (received instanceof MessageEvent message) {
-                    eventHandler.processEvent(message); // Message
-                }
-                else if (received instanceof ConnectionFinishedEvent){
-                    running = false;
-                    eventHandler.processEvent((ConnectionFinishedEvent) received); //Connection finished
-                }
-                else if (received instanceof JoinEvent joinEvent) {
-                    joinEvent.setSocket(clientSocket);
-                    eventHandler.processEvent(joinEvent); // Join event
-                }
-                else if (received instanceof NewConnectionEvent newConnectionEvent) {
-                    eventHandler.processEvent(newConnectionEvent); // New connection event
+                if (received instanceof ChatEvent event) {
+                    if (event instanceof NewConnectionEvent) {
+                        ((NewConnectionEvent) event).setSocket(clientSocket);
+                    }
+                    eventHandler.processEvent(event);
+
+                    if (event instanceof ConnectionFinishedEvent) {
+                        running = false;
+                    }
                 }
             }
         } catch (IOException | ClassNotFoundException e) {
@@ -58,9 +53,10 @@ public class SocketHandler extends Thread {
             output.writeObject(event);
             output.flush();
         } catch (IOException e) {
-            DebugCenter.error(e.getMessage());
+            DebugCenter.error("Error sending event: " + e.getMessage());
         }
     }
+
     public void close() {
         running = false;
         cleanup();
@@ -72,7 +68,7 @@ public class SocketHandler extends Thread {
             output.close();
             clientSocket.close();
         } catch (IOException e) {
-
+            DebugCenter.error("Error during cleanup: " + e.getMessage());
         }
     }
 }
