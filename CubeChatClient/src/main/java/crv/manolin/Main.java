@@ -97,20 +97,18 @@ public class Main extends JFrame {
     }
 
     private void setupEventHandlers() {
-        // Handle connection success
         eventHandler.addHandler(ChatEventType.CONNECTION_SUCCESS, event -> {
             ConnectionSuccessEvent successEvent = (ConnectionSuccessEvent) event;
             try {
+                connectionSocket.close();
                 chatSocket = new Socket(connectionSocket.getInetAddress(), successEvent.getPort());
                 outputStream = new ObjectOutputStream(chatSocket.getOutputStream());
                 inputStream = new ObjectInputStream(chatSocket.getInputStream());
-
-                // Send join event
                 JoinEvent joinEvent = new JoinEvent(
-                        successEvent.getRoomsIds().get(0),
+                        user.getRoomId(),
                         user.getUsername(),
                         "",  // password not implemented
-                        chatSocket
+                        null  // server will stablish the socket
                 );
                 outputStream.writeObject(joinEvent);
 
@@ -143,7 +141,7 @@ public class Main extends JFrame {
         });
     }
 
-    private void connect(String server, int port, String username, String roomId) throws IOException {
+    private void connect(String server, int port ,String username, String roomId) throws IOException {
         this.user = new User(username, roomId);
         connectionSocket = new Socket(server, port);
 
@@ -156,10 +154,8 @@ public class Main extends JFrame {
         new Thread(() -> {
             try {
                 ObjectInputStream initialInput = new ObjectInputStream(connectionSocket.getInputStream());
-                while (true) {
-                    ChatEvent event = (ChatEvent) initialInput.readObject();
-                    eventHandler.processEvent(event);
-                }
+                ChatEvent event = (ChatEvent) initialInput.readObject();
+                eventHandler.processEvent(event);
             } catch (IOException | ClassNotFoundException e) {
                 showError("Error in connection response: " + e.getMessage());
             }
