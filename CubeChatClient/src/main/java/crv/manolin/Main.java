@@ -14,6 +14,7 @@ import java.awt.event.*;
 import java.io.*;
 import java.net.Socket;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 
 public class Main extends JFrame {
@@ -176,13 +177,8 @@ public class Main extends JFrame {
                 chatOutputStream.writeObject(joinEvent);
                 chatOutputStream.flush();
                 System.out.println("Join event sent");
-
-
-
-
                 isConnected = true;
                 startMessageListener();
-
                 SwingUtilities.invokeLater(() -> {
                     chatArea.append("Connected to chat room!\n");
                     messageField.setEnabled(true);
@@ -200,7 +196,9 @@ public class Main extends JFrame {
         eventHandler.addHandler(ChatEventType.MESSAGE_RECEIVED, event -> {
             MessageEvent messageEvent = (MessageEvent) event;
             SwingUtilities.invokeLater(() -> {
-                chatArea.append(messageEvent.getSenderId() + ": " +
+                chatArea.append(messageEvent.getMessage().getTimestamp().
+                        format(DateTimeFormatter.ofPattern("HH:mm:ss")) + " " +
+                        messageEvent.getSenderId() + ": " +
                         messageEvent.getMessage().getContent() + "\n");
             });
         });
