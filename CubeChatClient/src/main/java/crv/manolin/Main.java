@@ -73,9 +73,14 @@ public class Main extends JFrame {
         add(scrollPane, BorderLayout.CENTER);
         add(bottomPanel, BorderLayout.SOUTH);
 
-        // Connection panel
+        setupConnectionPanel(backgroundColor, textColor);
+
+    }
+
+    private void setupConnectionPanel(Color backgroundColor, Color textColor) {
         JPanel connectionPanel = new JPanel();
         connectionPanel.setBackground(backgroundColor);
+
         JTextField serverField = new JTextField("localhost", 15);
         serverField.setBackground(backgroundColor);
         serverField.setForeground(textColor);
@@ -123,7 +128,7 @@ public class Main extends JFrame {
             }
         });
 
-        // Handle window closing
+
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
@@ -276,6 +281,10 @@ public class Main extends JFrame {
     private void disconnect() {
         isConnected = false;
         try {
+            if (chatOutputStream != null){
+                chatOutputStream.writeObject(new ConnectionFinishedEvent(roomId));
+                chatOutputStream.flush();
+            }
             if (chatOutputStream != null) chatOutputStream.close();
             if (chatInputStream != null) chatInputStream.close();
             if (outputStream != null) outputStream.close();

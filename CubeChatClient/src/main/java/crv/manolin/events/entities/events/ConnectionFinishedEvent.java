@@ -4,8 +4,10 @@ import crv.manolin.events.entities.ChatEvent;
 import crv.manolin.events.entities.ChatEventType;
 
 public class ConnectionFinishedEvent extends ChatEvent {
-    public ConnectionFinishedEvent() {
+    private String roomId;
+    public ConnectionFinishedEvent(String roomId) {
         super(ChatEventType.USER_LEFT);
+        this.roomId = roomId;
     }
 
 }
