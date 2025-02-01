@@ -1,5 +1,7 @@
 package crv.manolin.entities;
 
+import crv.manolin.sockets.SocketHandler;
+
 import java.net.Socket;
 import java.util.HashSet;
 import java.util.Set;
@@ -9,19 +11,21 @@ public class SocketSession {
     private String sessionId;
     private User user;
     private Socket connection;
+    private SocketHandler socketHandler;
     private Set<ChatRoom> subscribedRooms;
     private AtomicLong lastHeartbeat;
 
-    public SocketSession(String sessionId, User user, Socket connection) {
+    public SocketSession(String sessionId, User user, Socket connection , SocketHandler socketHandler) {
         this.sessionId = sessionId;
         this.user = user;
         this.connection = connection;
         this.subscribedRooms = new HashSet<>();
         this.lastHeartbeat = new AtomicLong(System.currentTimeMillis());
+        this.socketHandler = socketHandler;
     }
 
-    public void sendMessage(Message message) {
-        // TODO: SEND THE MESSAGE
+    public SocketHandler getSocketHandler() {
+        return socketHandler;
     }
 
     public void handleHeartbeat() {

@@ -1,5 +1,7 @@
 package crv.manolin.entities;
 
-public enum MessageType {
+import java.io.Serializable;
+
+public enum MessageType implements Serializable {
     CHAT, SYSTEM , STATUS
 }

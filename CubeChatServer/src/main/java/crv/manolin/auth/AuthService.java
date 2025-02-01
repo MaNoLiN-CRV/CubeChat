@@ -11,6 +11,6 @@ public class AuthService {
 
     public static User validateToken(String token) {
         // TODO: implement token validation
-        return new User();
+        return null;
     }
 }

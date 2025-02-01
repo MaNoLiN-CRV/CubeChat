@@ -1,14 +1,27 @@
 package crv.manolin.entities;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 
-public class Message {
+public class Message implements Serializable {
     private String roomId;
     private String content;
     private User sender;
     private LocalDateTime timestamp;
     private MessageType type;
+
+    public Message(String roomId, String content, User sender, LocalDateTime timestamp, MessageType type) {
+        this.roomId = roomId;
+        this.content = content;
+        this.sender = sender;
+        this.timestamp = timestamp;
+        this.type = type;
+    }
+
+    public Message() {
+
+    }
 
     public String getRoomId() {
         return roomId;

@@ -4,6 +4,7 @@ import crv.manolin.entities.ChatRoom;
 import crv.manolin.entities.SocketSession;
 import crv.manolin.entities.User;
 import crv.manolin.events.entities.events.MessageEvent;
+import crv.manolin.sockets.SocketHandler;
 
 import java.net.Socket;
 import java.util.ArrayList;
@@ -38,10 +39,13 @@ public class RoomManager {
         return new ArrayList<>(rooms.keySet());
     }
 
-    public void addUserToRoom(String roomId, User user , Socket socket) {
+    public void addUserToRoom(String roomId, User user , Socket socket , SocketHandler socketHandler) {
         ChatRoom room = rooms.get(roomId);
+        if (room == null) {
+            rooms.put(roomId, room = new ChatRoom(roomId));
+        }
         room.getParticipants().add(user);
-        sessionManager.addSession(new SocketSession(user.getId(), user, socket) , room);
+        sessionManager.addSession(new SocketSession(user.getId(), user, socket , socketHandler) , room);
         // TODO: Notify other users
     }
 

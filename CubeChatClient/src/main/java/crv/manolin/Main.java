@@ -13,6 +13,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.net.Socket;
+import java.time.LocalDateTime;
 
 
 public class Main extends JFrame {
@@ -20,11 +21,16 @@ public class Main extends JFrame {
     private Socket connectionSocket;
     private Socket chatSocket;
     private User user;
+    private String roomId;
     private final JTextArea chatArea;
     private final JTextField messageField;
     private ObjectOutputStream outputStream;
     private ObjectInputStream inputStream;
     private boolean isConnected = false;
+    private String IP ;
+
+    private ObjectOutputStream chatOutputStream = null;
+    private ObjectInputStream chatInputStream = null;
 
     public Main() {
         // Initialize event handler
@@ -34,7 +40,7 @@ public class Main extends JFrame {
         // Set up the GUI
         setTitle("Chat Client");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(600, 400);
+        setSize(800, 550);
 
         // Chat area
         chatArea = new JTextArea();
@@ -57,7 +63,7 @@ public class Main extends JFrame {
         // Connection panel
         JPanel connectionPanel = new JPanel();
         JTextField serverField = new JTextField("localhost", 15);
-        JTextField portField = new JTextField("8080", 5);
+        JTextField portField = new JTextField("8888", 5);
         JTextField usernameField = new JTextField(10);
         JTextField roomIdField = new JTextField(10);
         JButton connectButton = new JButton("Connect");
@@ -75,6 +81,7 @@ public class Main extends JFrame {
         add(connectionPanel, BorderLayout.NORTH);
 
         connectButton.addActionListener(e -> {
+            roomId = roomIdField.getText();
             try {
                 connect(
                         serverField.getText(),
@@ -84,6 +91,7 @@ public class Main extends JFrame {
                 );
             } catch (IOException ex) {
                 showError("Connection error: " + ex.getMessage());
+                ex.printStackTrace();
             }
         });
 
@@ -100,17 +108,44 @@ public class Main extends JFrame {
         eventHandler.addHandler(ChatEventType.CONNECTION_SUCCESS, event -> {
             ConnectionSuccessEvent successEvent = (ConnectionSuccessEvent) event;
             try {
-                connectionSocket.close();
-                chatSocket = new Socket(connectionSocket.getInetAddress(), successEvent.getPort());
-                outputStream = new ObjectOutputStream(chatSocket.getOutputStream());
-                inputStream = new ObjectInputStream(chatSocket.getInputStream());
+                System.out.println("Processing connection success event");
+                System.out.println("Chat port received: " + successEvent.getPort());
+
+                if (inputStream != null) inputStream.close();
+                if (outputStream != null) outputStream.close();
+                if (connectionSocket != null) connectionSocket.close();
+
+                System.out.println("Connecting to chat socket...");
+                Thread.sleep(1000);
+                chatSocket = new Socket(IP, successEvent.getPort());
+
+                System.out.println("/////////// Chat socket connected ////////////");
+                System.out.println(chatSocket.isConnected());
+                System.out.println(chatSocket);
+                System.out.println("//////////////////////////////////////");
+
+                System.out.println("Creating chat streams...");
+
+                chatOutputStream = new ObjectOutputStream(chatSocket.getOutputStream());
+                chatOutputStream.flush();
+                chatInputStream = new ObjectInputStream(chatSocket.getInputStream());
+                System.out.println("STREAMS CREATED");
+
+
+
+                System.out.println("Sending join event...");
                 JoinEvent joinEvent = new JoinEvent(
-                        user.getRoomId(),
+                        roomId,
                         user.getUsername(),
-                        "",  // password not implemented
-                        null  // server will stablish the socket
+                        "",
+                        null
                 );
-                outputStream.writeObject(joinEvent);
+                chatOutputStream.writeObject(joinEvent);
+                chatOutputStream.flush();
+                System.out.println("Join event sent");
+
+
+
 
                 isConnected = true;
                 startMessageListener();
@@ -120,7 +155,12 @@ public class Main extends JFrame {
                     messageField.setEnabled(true);
                 });
             } catch (IOException e) {
+                System.err.println("Error connecting to chat: " + e.getMessage());
+                e.printStackTrace();
                 showError("Error connecting to chat socket: " + e.getMessage());
+                disconnect();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
             }
         });
 
@@ -141,23 +181,33 @@ public class Main extends JFrame {
         });
     }
 
-    private void connect(String server, int port ,String username, String roomId) throws IOException {
-        this.user = new User(username, roomId);
+    private void connect(String server, int port, String username, String roomId) throws IOException {
+        System.out.println("Connecting to " + server + " on port " + port);
+        this.user = new User(username);
+        IP = server;
         connectionSocket = new Socket(server, port);
-
-        // Send new connection event
-        ObjectOutputStream initialOutput = new ObjectOutputStream(connectionSocket.getOutputStream());
+        outputStream = new ObjectOutputStream(connectionSocket.getOutputStream());
+        outputStream.flush();
+        inputStream = new ObjectInputStream(connectionSocket.getInputStream());
+        System.out.println("Sending connection event...");
         NewConnectionEvent newConnectionEvent = new NewConnectionEvent(username, "");
-        initialOutput.writeObject(newConnectionEvent);
+        outputStream.writeObject(newConnectionEvent);
+        outputStream.flush();
 
-        // Start listening for the connection response
         new Thread(() -> {
             try {
-                ObjectInputStream initialInput = new ObjectInputStream(connectionSocket.getInputStream());
-                ChatEvent event = (ChatEvent) initialInput.readObject();
+                System.out.println("Waiting for server response...");
+                ChatEvent event = (ChatEvent) inputStream.readObject();
+                System.out.println("Received response: " + event.getClass().getSimpleName());
                 eventHandler.processEvent(event);
-            } catch (IOException | ClassNotFoundException e) {
-                showError("Error in connection response: " + e.getMessage());
+            } catch (IOException e) {
+                showError("Connection lost: " + e.getMessage());
+                disconnect();
+                e.printStackTrace();
+            } catch (ClassNotFoundException e) {
+                showError("Protocol error: " + e.getMessage());
+                disconnect();
+                e.printStackTrace();
             }
         }).start();
     }
@@ -166,7 +216,7 @@ public class Main extends JFrame {
         new Thread(() -> {
             try {
                 while (isConnected) {
-                    ChatEvent event = (ChatEvent) inputStream.readObject();
+                    ChatEvent event = (ChatEvent) chatInputStream.readObject();
                     eventHandler.processEvent(event);
                 }
             } catch (IOException | ClassNotFoundException e) {
@@ -184,18 +234,22 @@ public class Main extends JFrame {
         if (messageText.isEmpty()) return;
 
         try {
-            Message message = new Message(user.getRoomId(), messageText, user, MessageType.CHAT);
-            MessageEvent messageEvent = new MessageEvent(message, user.getRoomId(), user.getUsername());
-            outputStream.writeObject(messageEvent);
+            Message message = new Message(roomId, messageText, user, LocalDateTime.now(), MessageType.CHAT);
+            MessageEvent messageEvent = new MessageEvent(message, roomId, user.getUsername());
+            chatOutputStream.writeObject(messageEvent);
+            chatOutputStream.flush();
             messageField.setText("");
         } catch (IOException e) {
             showError("Error sending message: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
     private void disconnect() {
         isConnected = false;
         try {
+            if (chatOutputStream != null) chatOutputStream.close();
+            if (chatInputStream != null) chatInputStream.close();
             if (outputStream != null) outputStream.close();
             if (inputStream != null) inputStream.close();
             if (chatSocket != null) chatSocket.close();

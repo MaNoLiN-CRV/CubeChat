@@ -10,7 +10,7 @@ public class ChatRoom {
     private Set<User> participants;
     private LinkedBlockingQueue<Message> messageBuffer;
 
-    public ChatRoom(String id, String name) {
+    public ChatRoom(String id) {
         this.id = id;
         this.name = name;
         this.participants = new LinkedHashSet<>();

@@ -33,7 +33,7 @@ public class SessionManager {
         for (ChatRoom chatRoom : sessions.keySet()) {
             if (Objects.equals(chatRoom.getId(), event.getRoomId())){
                 for (SocketSession socketSession : sessions.get(chatRoom)) {
-                    socketSession.sendMessage(event.getMessage());
+                    socketSession.getSocketHandler().sendEvent(event);
                 }
             }
         }

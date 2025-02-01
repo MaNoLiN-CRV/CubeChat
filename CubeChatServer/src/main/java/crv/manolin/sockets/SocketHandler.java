@@ -9,31 +9,36 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
 
 public class SocketHandler extends Thread {
     private final Socket clientSocket;
     private final ChatEventHandler eventHandler;
-    private final ObjectInputStream input;
-    private final ObjectOutputStream output;
+    private ObjectInputStream input = null;
+    private ObjectOutputStream output = null;
     private boolean running;
 
     public SocketHandler(Socket socket, ChatEventHandler handler) throws IOException {
         this.clientSocket = socket;
         this.eventHandler = handler;
-        this.output = new ObjectOutputStream(socket.getOutputStream());
         this.input = new ObjectInputStream(socket.getInputStream());
+        this.output = new ObjectOutputStream(socket.getOutputStream());
+        output.flush();
         this.running = true;
     }
 
     @Override
     public void run() {
         try {
+            DebugCenter.log("Handler started for: " + clientSocket.getInetAddress());
             while (running) {
                 Object received = input.readObject();
                 if (received instanceof ChatEvent event) {
-                    if (event instanceof NewConnectionEvent) {
-                        ((NewConnectionEvent) event).setSocket(clientSocket);
+                    if (event instanceof JoinEvent joinEvent) {
+                        joinEvent.setSocket(clientSocket);
+                        joinEvent.addProp(this);
                     }
+                    DebugCenter.log("Received event: " + event.toString());
                     eventHandler.processEvent(event);
 
                     if (event instanceof ConnectionFinishedEvent) {
@@ -42,7 +47,9 @@ public class SocketHandler extends Thread {
                 }
             }
         } catch (IOException | ClassNotFoundException e) {
+            DebugCenter.error("Error during event handling: " + e.getMessage());
             eventHandler.processEvent(new ConnectionLostEvent(clientSocket));
+            e.printStackTrace();
         } finally {
             cleanup();
         }

@@ -11,7 +11,7 @@ public class Configuration {
 
     public static Configuration getInstance() {
         if (configuration == null) {
-            synchronized (configuration) {
+            synchronized (Configuration.class) {
                 if (configuration == null) {
                     configuration = new Configuration();
                 }

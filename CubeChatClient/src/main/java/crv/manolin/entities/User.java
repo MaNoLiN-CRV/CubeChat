@@ -1,12 +1,21 @@
 package crv.manolin.entities;
 
-public class User {
+import java.io.Serializable;
 
+public class User implements Serializable {
+    private String id;
     private String username;
-    private String roomId;
-    public User(String username , String roomId) {
+    private String passwordHash;
+
+    public User(String username) {
         this.username = username;
-        this.roomId = roomId;
+    }
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getUsername() {
@@ -17,11 +26,11 @@ public class User {
         this.username = username;
     }
 
-    public String getRoomId() {
-        return roomId;
+    public String getPasswordHash() {
+        return passwordHash;
     }
 
-    public void setRoomId(String roomId) {
-        this.roomId = roomId;
+    public void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
     }
 }
