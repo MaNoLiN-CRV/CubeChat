@@ -36,24 +36,37 @@ public class Main extends JFrame {
         // Initialize event handler
         eventHandler = new ChatEventHandler();
         setupEventHandlers();
-
         // Set up the GUI
-        setTitle("Chat Client");
+        setTitle("CubeChat Client");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(800, 550);
+        setSize(850, 600);
+        // Set up dark theme colors
+        Color backgroundColor = Color.BLACK;
+        Color textColor = Color.GREEN;
 
         // Chat area
         chatArea = new JTextArea();
+        chatArea.setBackground(backgroundColor);
+        chatArea.setForeground(textColor);
         chatArea.setEditable(false);
+        chatArea.setFont(new Font("Monospaced", Font.PLAIN, 14));
         JScrollPane scrollPane = new JScrollPane(chatArea);
+        scrollPane.getViewport().setBackground(backgroundColor);
 
         // Message input
         messageField = new JTextField();
+        messageField.setBackground(backgroundColor);
+        messageField.setForeground(textColor);
+        messageField.setFont(new Font("Monospaced", Font.PLAIN, 14));
         JButton sendButton = new JButton("Send");
+        sendButton.setBackground(backgroundColor);
+        sendButton.setForeground(textColor);
+        sendButton.setFont(new Font("Monospaced", Font.PLAIN, 14));
         sendButton.addActionListener(e -> sendMessage());
 
         // Layout
         JPanel bottomPanel = new JPanel(new BorderLayout());
+        bottomPanel.setBackground(backgroundColor);
         bottomPanel.add(messageField, BorderLayout.CENTER);
         bottomPanel.add(sendButton, BorderLayout.EAST);
 
@@ -62,11 +75,27 @@ public class Main extends JFrame {
 
         // Connection panel
         JPanel connectionPanel = new JPanel();
+        connectionPanel.setBackground(backgroundColor);
         JTextField serverField = new JTextField("localhost", 15);
+        serverField.setBackground(backgroundColor);
+        serverField.setForeground(textColor);
+        serverField.setFont(new Font("Monospaced", Font.PLAIN, 14));
         JTextField portField = new JTextField("8888", 5);
+        portField.setBackground(backgroundColor);
+        portField.setForeground(textColor);
+        portField.setFont(new Font("Monospaced", Font.PLAIN, 14));
         JTextField usernameField = new JTextField(10);
+        usernameField.setBackground(backgroundColor);
+        usernameField.setForeground(textColor);
+        usernameField.setFont(new Font("Monospaced", Font.PLAIN, 14));
         JTextField roomIdField = new JTextField(10);
+        roomIdField.setBackground(backgroundColor);
+        roomIdField.setForeground(textColor);
+        roomIdField.setFont(new Font("Monospaced", Font.PLAIN, 14));
         JButton connectButton = new JButton("Connect");
+        connectButton.setBackground(backgroundColor);
+        connectButton.setForeground(textColor);
+        connectButton.setFont(new Font("Monospaced", Font.PLAIN, 14));
 
         connectionPanel.add(new JLabel("Server:"));
         connectionPanel.add(serverField);
@@ -79,7 +108,6 @@ public class Main extends JFrame {
         connectionPanel.add(connectButton);
 
         add(connectionPanel, BorderLayout.NORTH);
-
         connectButton.addActionListener(e -> {
             roomId = roomIdField.getText();
             try {
